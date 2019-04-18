@@ -1,2 +1,5 @@
 # ibexDB
-simple rest key value database
+
+Simple rest key value database
+
+A reasonably fast web-based key value store.
