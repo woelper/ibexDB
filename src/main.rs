@@ -13,7 +13,9 @@ extern crate serde;
 extern crate clap;
 use clap::{Arg, App, SubCommand};
 use std::fs::File;
-use std::io::BufReader;
+use std::io::{BufReader, BufWriter};
+use log::{info, trace, warn};
+use simple_logger;
 
 // distributed db sync
 mod herd;
@@ -26,7 +28,7 @@ mod persistence;
 
 
 #[derive(Serialize, Deserialize, Debug)]
-struct IbexConf {
+pub struct IbexConf {
     database: String,
     snapshot_interval: u64,
     herd: Vec<String>
@@ -44,6 +46,10 @@ impl Default for IbexConf {
 
 
 fn main() {
+    // simple_logger::init().unwrap();
+
+    info!("ibexDB is starting.");
+
 
     let matches = App::new("ibexDB")
         .arg(Arg::with_name("config")
@@ -60,7 +66,9 @@ fn main() {
             serde_json::from_reader(reader).unwrap_or_default()
         }
         Err(_e) => {
-            println!("Could not open a config file, using default.");
+            info!("Could not open a config file, creating default.");
+            let writer = BufWriter::new(File::create("ibex.conf").unwrap());
+            serde_json::to_writer_pretty(writer, &IbexConf::default()).unwrap();
             IbexConf::default()
             }
     };
@@ -71,6 +79,8 @@ fn main() {
     // start the committer
     persistence::disk_committer(conf.database.clone(), conf.snapshot_interval);
     // start the interface
+    herd::init(&conf);
     http_interface::start();
+
  
 }
