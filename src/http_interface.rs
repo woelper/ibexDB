@@ -3,7 +3,9 @@ use rocket_contrib::json::Json;
 use std::time::{Duration, SystemTime};
 use super::rocket;
 use super::herd::{SyncBucket, receive};
-use super::rocket::response::content;
+use rocket::response::status;
+use rocket::http::Status;
+
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct Kv {
@@ -56,14 +58,14 @@ fn post_kv(kv: Json<Kv>) {
 
 
 #[post("/sync", format = "application/json", data = "<kv>")]
-fn post_sync(kv: Json<SyncBucket>) -> content::Json<&'static str> {
+fn post_sync(kv: Json<SyncBucket>) -> Status {
     // println!("got {:?} to sync", kv.into_inner());
     match receive(&kv.into_inner()) {
         Some(_res) => {
-            clear_unsynced();
-            content::Json("{ 'status': 'ok' }")
+            // clear_unsynced();
+            Status::new(200, "OK")
             },
-        None => content::Json("{ 'status': 'error' }")
+        None => Status::new(500, "No")
     }
 }
 

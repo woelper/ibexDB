@@ -29,9 +29,8 @@ pub fn receive(bucket: &SyncBucket) -> Option<String> {
 }
 
 pub fn send(hosts: &Vec<String>) {
-    if let Ok(unsynced) = UNSYNCED.lock() {
+    if let Ok(mut unsynced) = UNSYNCED.lock() {
 
-     
         let mut shuffled_hosts = hosts.clone();
         shuffled_hosts.shuffle(&mut thread_rng());
 
@@ -45,12 +44,13 @@ pub fn send(hosts: &Vec<String>) {
             };
             let url = format!("http://{}/sync", host);
 
-            if let Ok(_res) = reqwest::Client::new()
+            if let Ok(res) = reqwest::Client::new()
                 .post(&url)
                 .json(&bucket)
                 .send()
             {
-                println!("Sent to {}", url);
+                println!("Sent data to {}: {:?}", url, res);
+                unsynced.clear();
                 break;
             } else {
                 println!("Host unreachable {}", url);
