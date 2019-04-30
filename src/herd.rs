@@ -16,6 +16,18 @@ pub struct SyncBucket {
 }
 
 
+pub fn receive(bucket: &SyncBucket) -> Option<String> {
+    // println!("got {:?} to sync", bucket);
+    if let Ok(mut db) = DB.lock() {
+        for (key, value) in &bucket.unsynced_data {
+            println!("{}={:?}", key, value);
+            db.insert(key.clone(), value.clone());
+        }
+        return Some(String::from("OK"));
+    }
+    return None;
+}
+
 pub fn send(hosts: &Vec<String>) {
     if let Ok(unsynced) = UNSYNCED.lock() {
 

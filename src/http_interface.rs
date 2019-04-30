@@ -1,9 +1,9 @@
-use super::persistence::{Value, DB, UNSYNCED};
+use super::persistence::{Value, DB, UNSYNCED, clear_unsynced};
 use rocket_contrib::json::Json;
 use std::time::{Duration, SystemTime};
 use super::rocket;
-use super::herd::SyncBucket;
-
+use super::herd::{SyncBucket, receive};
+use super::rocket::response::content;
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 struct Kv {
@@ -56,20 +56,15 @@ fn post_kv(kv: Json<Kv>) {
 
 
 #[post("/sync", format = "application/json", data = "<kv>")]
-fn post_sync(kv: Json<SyncBucket>) {
-    println!("got {:?} to sync", kv.into_inner());
-
-    // let v: Value = serde::fr
-
-    // if let Ok(mut locked_obj) = persistence::DB.lock(){
-    //     locked_obj.insert(
-    //         kv.key.clone(),
-    //         persistence::Value{
-    //             value: kv.value.clone(),
-    //             timestamp:SystemTime::now()
-    //         }
-    //     );
-    // }
+fn post_sync(kv: Json<SyncBucket>) -> content::Json<&'static str> {
+    // println!("got {:?} to sync", kv.into_inner());
+    match receive(&kv.into_inner()) {
+        Some(_res) => {
+            clear_unsynced();
+            content::Json("{ 'status': 'ok' }")
+            },
+        None => content::Json("{ 'status': 'error' }")
+    }
 }
 
 
@@ -79,7 +74,6 @@ pub fn start() {
         .mount("/", routes![post_sync])
         .mount("/get", routes![get])
         .launch();
-
 }
 
 

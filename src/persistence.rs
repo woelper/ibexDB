@@ -52,6 +52,14 @@ pub fn disk_committer(dbfile: String, interval: u64) {
 }
 
 
+pub fn clear_unsynced() {
+    if let Ok(mut us) = UNSYNCED.lock() {
+        us.clear();
+        us.shrink_to_fit();
+        dbg!("cleared unsynced data");
+    } 
+}
+
 pub fn disk_reader(dbfile: &String) {    
  
 // format!("{}-unsynced", moved_dbfile)
