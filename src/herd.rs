@@ -31,6 +31,9 @@ pub fn receive(bucket: &SyncBucket) -> Option<String> {
 pub fn send(hosts: &Vec<String>) {
     if let Ok(mut unsynced) = UNSYNCED.lock() {
 
+        if unsynced.is_empty() {
+            return
+        }
         let mut shuffled_hosts = hosts.clone();
         shuffled_hosts.shuffle(&mut thread_rng());
 

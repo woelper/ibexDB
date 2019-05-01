@@ -34,8 +34,9 @@ fn set(obj: String)  {
 
 #[post("/add", format = "application/json", data = "<kv>")]
 fn post_kv(kv: Json<Kv>) {
-    let timestamp = SystemTime::now();
 
+    println!("got {:?}", kv);
+    let timestamp = SystemTime::now();
     if let Ok(mut locked_obj) = DB.lock(){
         locked_obj.insert(
             kv.key.clone(),
@@ -44,7 +45,7 @@ fn post_kv(kv: Json<Kv>) {
                 timestamp: timestamp
             }
         );
-    }
+    } else {println!("COULD NOT LOCK")}
     if let Ok(mut locked_obj) = UNSYNCED.lock(){
         locked_obj.insert(
             kv.key.clone(),
@@ -53,7 +54,7 @@ fn post_kv(kv: Json<Kv>) {
                 timestamp: timestamp
             }
         );
-    }
+    } else {println!("COULD NOT LOCK")}
 }
 
 
