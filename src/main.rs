@@ -31,6 +31,7 @@ mod persistence;
 pub struct IbexConf {
     database: String,
     snapshot_interval: u64,
+    sync_interval: u64,
     herd: Vec<String>
 }
 
@@ -39,6 +40,7 @@ impl Default for IbexConf {
         IbexConf {
             database: String::from("db"),
             snapshot_interval: 10,
+            sync_interval: 20,
             herd: vec![]
         }
     }
@@ -73,6 +75,7 @@ fn main() {
             }
     };
 
+    println!("=== Configuration:\n\tCommit interval: {}s\n\tHosts to sync: {:?}", conf.snapshot_interval, conf.herd);
 
     // Load from db
     persistence::disk_reader(&conf.database);

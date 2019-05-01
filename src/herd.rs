@@ -47,29 +47,29 @@ pub fn send(hosts: &Vec<String>) {
             };
             let url = format!("http://{}/sync", host);
 
-            if let Ok(res) = reqwest::Client::new()
+            match reqwest::Client::new()
                 .post(&url)
                 .json(&bucket)
                 .send()
             {
-                println!("Sent data to {}: {:?}", url, res);
-                unsynced.clear();
-                break;
-            } else {
-                println!("Host unreachable {}", url);
-            }   
+                Ok(res) => {
+                    println!("Data sent to {}", url);
+                    unsynced.clear();
+                    break;
+                },
+                Err(e) => println!("Host unreachable {}: {:?}", url, e)
+            }  
         }
-    }
+    } else {dbg!("Can't lock for sending");}
 }
 
 pub fn sync_service(interval: u64, herd: Vec<String>) {
     thread::spawn(move || loop {
         thread::sleep(Duration::from_secs(interval));
-
         send(&herd);
     });
 }
 
 pub fn init(conf: &IbexConf) {
-    sync_service(20, conf.herd.clone());
+    sync_service(conf.sync_interval, conf.herd.clone());
 }
