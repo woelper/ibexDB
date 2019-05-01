@@ -34,14 +34,14 @@ pub fn disk_committer(dbfile: String, interval: u64) {
             thread::sleep(Duration::from_secs(interval));
             if let Ok(obj) = DB.lock() {
                 if let Ok(f) = File::create(&moved_dbfile) {
-                    if let Ok(_r) = serde_json::to_writer_pretty(BufWriter::new(f), &*obj) {
+                    if let Ok(_r) = serde_json::to_writer(BufWriter::new(f), &*obj) {
                         info!("Disk snapshot complete.")
                     }    
                 }
             }
             if let Ok(obj) = UNSYNCED.lock() {
                 if let Ok(f) = File::create(format!("{}-unsynced", moved_dbfile)) {
-                    if let Ok(_r) = serde_json::to_writer_pretty(BufWriter::new(f), &*obj) {
+                    if let Ok(_r) = serde_json::to_writer(BufWriter::new(f), &*obj) {
                         info!("Disk snapshot complete.")
                     }    
                 }
@@ -51,13 +51,19 @@ pub fn disk_committer(dbfile: String, interval: u64) {
     });
 }
 
+pub fn make_db_unsynced() {
+    if let Ok(db) = DB.lock() {
+        if let Ok(mut us) = UNSYNCED.lock(){
+            // *us.extend(db);
 
-pub fn clear_unsynced() {
-    if let Ok(mut us) = UNSYNCED.lock() {
-        us.clear();
-        us.shrink_to_fit();
-        dbg!("cleared unsynced data");
-    } 
+            us.extend(db.clone());
+
+            // for (key, value) in *db {
+            //     // us.insert(key, value);
+
+            // }
+        }
+    }
 }
 
 pub fn disk_reader(dbfile: &String) {    

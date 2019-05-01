@@ -1,9 +1,8 @@
-use super::persistence::{Value, DB, UNSYNCED, clear_unsynced};
+use super::persistence::{Value, DB, UNSYNCED};
 use rocket_contrib::json::Json;
 use std::time::{Duration, SystemTime};
 use super::rocket;
 use super::herd::{SyncBucket, receive};
-use rocket::response::status;
 use rocket::http::Status;
 
 
@@ -35,7 +34,7 @@ fn set(obj: String)  {
 #[post("/add", format = "application/json", data = "<kv>")]
 fn post_kv(kv: Json<Kv>) {
 
-    println!("got {:?}", kv);
+    // println!("got {:?}", kv);
     let timestamp = SystemTime::now();
     if let Ok(mut locked_obj) = DB.lock(){
         locked_obj.insert(

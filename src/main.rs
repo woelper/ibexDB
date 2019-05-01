@@ -79,6 +79,8 @@ fn main() {
 
     // Load from db
     persistence::disk_reader(&conf.database);
+    //at the first startup, force the whole db to be synced
+    persistence::make_db_unsynced();
     // start the committer
     persistence::disk_committer(conf.database.clone(), conf.snapshot_interval);
     // start the interface
