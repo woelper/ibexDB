@@ -53,11 +53,11 @@ pub fn send(hosts: &Vec<String>) {
                 .send()
             {
                 Ok(res) => {
-                    println!("Data sent to {}", url);
+                    info!("Data sent to {}", url);
                     unsynced.clear();
                     break;
                 },
-                Err(e) => println!("Host unreachable {}: {:?}", url, e)
+                Err(e) => warn!("Host unreachable {}", url)
             }  
         }
     } else {dbg!("Can't lock for sending");}

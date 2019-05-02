@@ -15,7 +15,8 @@ use clap::{Arg, App, SubCommand};
 use std::fs::File;
 use std::io::{BufReader, BufWriter};
 use log::{info, trace, warn};
-use simple_logger;
+use env_logger;
+use log::LevelFilter;
 
 // distributed db sync
 mod herd;
@@ -48,8 +49,8 @@ impl Default for IbexConf {
 
 
 fn main() {
-    // simple_logger::init().unwrap();
-
+    // Just log this file and below
+    env_logger::builder().filter_module("ibexDB", LevelFilter::Info).init();
     info!("ibexDB is starting.");
 
 
