@@ -4,6 +4,7 @@ use std::time::{Duration, SystemTime};
 use super::rocket;
 use super::herd::{SyncBucket, receive};
 use rocket::http::Status;
+use log::{info, trace, warn};
 
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -25,10 +26,10 @@ fn get(key: String) -> String {
 }
 
 //set the storage TODO: implement
-#[get("/<obj>")]
-fn set(obj: String)  {
+// #[get("/<obj>")]
+// fn set(obj: String)  {
 
-}
+// }
 
 
 #[post("/add", format = "application/json", data = "<kv>")]
@@ -59,13 +60,16 @@ fn post_kv(kv: Json<Kv>) {
 
 #[post("/sync", format = "application/json", data = "<kv>")]
 fn post_sync(kv: Json<SyncBucket>) -> Status {
-    // println!("got {:?} to sync", kv.into_inner());
+    info!("Sync triggered");
     match receive(&kv.into_inner()) {
         Some(_res) => {
             // clear_unsynced();
             Status::new(200, "OK")
             },
-        None => Status::new(500, "No")
+        None => {
+            warn!("Could not receive.");
+            Status::new(500, "No")
+            }
     }
 }
 
