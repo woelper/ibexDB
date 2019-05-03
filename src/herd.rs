@@ -20,9 +20,9 @@ pub fn receive(bucket: &SyncBucket) -> Option<String> {
     // println!("got {:?} to sync", bucket);
     if let Ok(mut db) = DB.lock() {
         for (key, value) in &bucket.unsynced_data {
-            println!("{}={:?}", key, value);
             db.insert(key.clone(), value.clone());
         }
+        info!("Received {} keys", &bucket.unsynced_data.len());
         return Some(String::from("OK"));
     }
     return None;
@@ -38,7 +38,7 @@ pub fn send(hosts: &Vec<String>) {
         shuffled_hosts.shuffle(&mut thread_rng());
 
         for (i, host) in shuffled_hosts.iter().enumerate() {
-            info!("Trying to sync {}", host);
+            info!("Trying to sync {} keys to {}", unsynced.len(), host);
             let mut other_hosts = shuffled_hosts.clone();
             other_hosts.remove(i);
             let bucket = SyncBucket {
