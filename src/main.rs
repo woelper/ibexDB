@@ -17,7 +17,7 @@ use std::io::{BufReader, BufWriter, Write};
 use log::{info, trace, warn};
 use env_logger;
 use log::LevelFilter;
-use chrono::Local;
+// use chrono::Local;
 
 // distributed db sync
 mod herd;
