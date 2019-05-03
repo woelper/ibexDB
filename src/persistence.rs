@@ -35,14 +35,14 @@ pub fn disk_committer(dbfile: String, interval: u64) {
             if let Ok(obj) = DB.lock() {
                 if let Ok(f) = File::create(&moved_dbfile) {
                     if let Ok(_r) = serde_json::to_writer(BufWriter::new(f), &*obj) {
-                        info!("Disk snapshot complete.")
+                        info!("DB commit complete.")
                     }    
                 }
             }
             if let Ok(obj) = UNSYNCED.lock() {
                 if let Ok(f) = File::create(format!("{}-unsynced", moved_dbfile)) {
                     if let Ok(_r) = serde_json::to_writer(BufWriter::new(f), &*obj) {
-                        info!("Disk snapshot complete.")
+                        info!("UNSYNCED commit complete.")
                     }    
                 }
             }
@@ -57,7 +57,7 @@ pub fn make_db_unsynced() {
             // *us.extend(db);
 
             us.extend(db.clone());
-
+            info!("First start: marked the complete DB as unsynced")
             // for (key, value) in *db {
             //     // us.insert(key, value);
 
@@ -75,6 +75,7 @@ pub fn disk_reader(dbfile: &String) {
         if let Ok(db) = serde_json::from_reader(reader) {
             if let Ok(mut data) = DB.lock(){
                 *data = db;
+                info!("Loaded database with {} keys", data.len());
             }
         }
     }
@@ -84,6 +85,7 @@ pub fn disk_reader(dbfile: &String) {
         if let Ok(db) = serde_json::from_reader(reader) {
             if let Ok(mut data) = UNSYNCED.lock(){
                 *data = db;
+                info!("Loaded unsynced data with {} keys", data.len())
             }
         }
     }

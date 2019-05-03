@@ -38,7 +38,7 @@ pub fn send(hosts: &Vec<String>) {
         shuffled_hosts.shuffle(&mut thread_rng());
 
         for (i, host) in shuffled_hosts.iter().enumerate() {
-
+            info!("Trying to sync {}", host);
             let mut other_hosts = shuffled_hosts.clone();
             other_hosts.remove(i);
             let bucket = SyncBucket {
@@ -65,11 +65,12 @@ pub fn send(hosts: &Vec<String>) {
 
 pub fn sync_service(interval: u64, herd: Vec<String>) {
     thread::spawn(move || loop {
-        thread::sleep(Duration::from_secs(interval));
         send(&herd);
+        thread::sleep(Duration::from_secs(interval));
     });
 }
 
 pub fn init(conf: &IbexConf) {
+    info!("Starting sync service");
     sync_service(conf.sync_interval, conf.herd.clone());
 }

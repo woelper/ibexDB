@@ -13,10 +13,11 @@ extern crate serde;
 extern crate clap;
 use clap::{Arg, App, SubCommand};
 use std::fs::File;
-use std::io::{BufReader, BufWriter};
+use std::io::{BufReader, BufWriter, Write};
 use log::{info, trace, warn};
 use env_logger;
 use log::LevelFilter;
+use chrono::Local;
 
 // distributed db sync
 mod herd;
@@ -76,7 +77,7 @@ fn main() {
             }
     };
 
-    println!("=== Configuration:\n\tCommit interval: {}s\n\tHosts to sync: {:?}", conf.snapshot_interval, conf.herd);
+    info!("Configuration: Commit interval: {}s Hosts to sync: {:?}", conf.snapshot_interval, conf.herd);
 
     // Load from db
     persistence::disk_reader(&conf.database);
