@@ -34,6 +34,10 @@ pub fn send(hosts: &Vec<String>) {
         if unsynced.is_empty() {
             return
         }
+
+
+
+        
         let mut shuffled_hosts = hosts.clone();
         shuffled_hosts.shuffle(&mut thread_rng());
 
@@ -53,11 +57,15 @@ pub fn send(hosts: &Vec<String>) {
                 .send()
             {
                 Ok(res) => {
-                    info!("Data sent to {}", url);
-                    unsynced.clear();
-                    break;
+                    if res.status().is_success() {
+                        info!("Data sent to {}", url);
+                        unsynced.clear();
+                        break;
+                    } else {
+                        warn!("Could not send data: {:?}", res.status());
+                    }
                 },
-                Err(e) => warn!("Host unreachable {}", url)
+                Err(e) => warn!("Host unreachable {}, {}", url, e)
             }  
         }
     } else {dbg!("Can't lock for sending");}

@@ -63,7 +63,6 @@ fn post_sync(kv: Json<SyncBucket>) -> Status {
     info!("Sync triggered");
     match receive(&kv.into_inner()) {
         Some(_res) => {
-            // clear_unsynced();
             Status::new(200, "OK")
             },
         None => {
